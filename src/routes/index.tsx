@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   Zap, Clock, TrendingUp, Shield, Sparkles, Rocket, Target, Award,
@@ -57,7 +57,16 @@ function LandingPage() {
           </div>
           <span>PageForge<span className="text-primary"> AI</span></span>
         </div>
-        <PrimaryCTA small>Dùng Thử Ngay</PrimaryCTA>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:bg-primary/10"
+          >
+            <Lock className="h-4 w-4" />
+            Đăng Nhập
+          </Link>
+          <PrimaryCTA small>Dùng Thử Ngay</PrimaryCTA>
+        </div>
       </header>
 
       {/* HERO */}
