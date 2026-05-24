@@ -13,4 +13,10 @@ export default defineConfig({
     server: { entry: "server" },
     prerender: { enabled: false },
   },
+  define: {
+    'process.env.SUPABASE_URL': JSON.stringify("https://fmnkedtowugzmdgyziov.supabase.co"),
+    'process.env.SUPABASE_PUBLISHABLE_KEY': JSON.stringify("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtbmtlZHRvd3Vnem1kZ3l6aW92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDM1ODQsImV4cCI6MjA5NTE3OTU4NH0.28Won7Z8tluJPoq7h1G8GFbmGPVZdFx2Rw_R094gpb4"),
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify("https://fmnkedtowugzmdgyziov.supabase.co"),
+    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtbmtlZHRvd3Vnem1kZ3l6aW92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MDM1ODQsImV4cCI6MjA5NTE3OTU4NH0.28Won7Z8tluJPoq7h1G8GFbmGPVZdFx2Rw_R094gpb4")
+  }
 });
