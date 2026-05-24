@@ -3,14 +3,33 @@ import { createServerFn } from '@tanstack/react-start';
 
 const getDebugEnv = createServerFn({ method: 'GET' }).handler(async () => {
   const globalEnv = (globalThis as any).ENV || {};
+  
+  const getKeys = (obj: any): string[] => {
+    const keys = new Set<string>();
+    let current = obj;
+    while (current && current !== Object.prototype) {
+      for (const key of Reflect.ownKeys(current)) {
+        if (typeof key === 'string') {
+          keys.add(key);
+        }
+      }
+      current = Object.getPrototypeOf(current);
+    }
+    return Array.from(keys);
+  };
+
+  const allKeys = getKeys(globalEnv);
+  const keysWithType: Record<string, string> = {};
+  for (const k of allKeys) {
+    if (k !== 'constructor' && typeof k === 'string') {
+      keysWithType[k] = typeof globalEnv[k];
+    }
+  }
+
   return {
     isGlobalEnvSet: !!(globalThis as any).ENV,
-    supabaseUrlInGlobalEnv: typeof globalEnv.SUPABASE_URL,
-    supabasePublishableKeyInGlobalEnv: typeof globalEnv.SUPABASE_PUBLISHABLE_KEY,
-    supabaseServiceRoleKeyInGlobalEnv: typeof globalEnv.SUPABASE_SERVICE_ROLE_KEY,
-    supabaseUrlInProcessEnv: typeof process.env.SUPABASE_URL,
-    supabasePublishableKeyInProcessEnv: typeof process.env.SUPABASE_PUBLISHABLE_KEY,
-    supabaseServiceRoleKeyInProcessEnv: typeof process.env.SUPABASE_SERVICE_ROLE_KEY,
+    keysWithType,
+    processEnvKeys: Object.keys(process.env).filter(k => k.startsWith('SUPABASE')),
   };
 });
 
