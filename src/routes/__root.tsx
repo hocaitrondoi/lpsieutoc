@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { getEnv } from "../lib/env";
 
 function NotFoundComponent() {
   return (
@@ -99,7 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   const isServer = typeof window === "undefined";
   const envScript = isServer
-    ? `window.ENV = { SUPABASE_URL: ${JSON.stringify(process.env['SUPABASE_URL'])}, SUPABASE_PUBLISHABLE_KEY: ${JSON.stringify(process.env['SUPABASE_PUBLISHABLE_KEY'])} };`
+    ? `window.ENV = { SUPABASE_URL: ${JSON.stringify(getEnv('SUPABASE_URL'))}, SUPABASE_PUBLISHABLE_KEY: ${JSON.stringify(getEnv('SUPABASE_PUBLISHABLE_KEY'))} };`
     : "";
 
   return (
