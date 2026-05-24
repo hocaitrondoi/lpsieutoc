@@ -26,11 +26,27 @@ const getDebugEnv = createServerFn({ method: 'GET' }).handler(async () => {
     }
   }
 
+  const envObj = (globalThis as any).ENV || {};
+  
   return {
     isGlobalEnvSet: !!(globalThis as any).ENV,
     keysWithType,
     processEnvKeys: Object.keys(process.env),
-    debugVersion: "v2-all-keys",
+    debugVersion: "v3-explicit-check",
+    // Explicit checks on globalThis.ENV
+    envHasSupabaseUrl: 'SUPABASE_URL' in envObj,
+    envSupabaseUrlType: typeof envObj.SUPABASE_URL,
+    envSupabaseUrlLength: typeof envObj.SUPABASE_URL === 'string' ? envObj.SUPABASE_URL.length : null,
+    envSupabaseUrlValueStart: typeof envObj.SUPABASE_URL === 'string' ? envObj.SUPABASE_URL.slice(0, 10) : null,
+    // Explicit checks on process.env
+    procHasSupabaseUrl: 'SUPABASE_URL' in process.env,
+    procSupabaseUrlType: typeof process.env.SUPABASE_URL,
+    procSupabaseUrlLength: typeof process.env.SUPABASE_URL === 'string' ? process.env.SUPABASE_URL.length : null,
+    procSupabaseUrlValueStart: typeof process.env.SUPABASE_URL === 'string' ? process.env.SUPABASE_URL.slice(0, 10) : null,
+    // Explicit checks on globalThis
+    globalHasSupabaseUrl: 'SUPABASE_URL' in globalThis,
+    globalSupabaseUrlType: typeof (globalThis as any).SUPABASE_URL,
+    globalSupabaseUrlValueStart: typeof (globalThis as any).SUPABASE_URL === 'string' ? (globalThis as any).SUPABASE_URL.slice(0, 10) : null,
   };
 });
 
