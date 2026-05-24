@@ -10,8 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as DebugEnvRouteImport } from './routes/debug-env'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CreateAdminRouteImport } from './routes/create-admin'
 import { Route as IndexRouteImport } from './routes/index'
 
 const LoginRoute = LoginRouteImport.update({
@@ -19,14 +19,14 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DebugEnvRoute = DebugEnvRouteImport.update({
-  id: '/debug-env',
-  path: '/debug-env',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateAdminRoute = CreateAdminRouteImport.update({
+  id: '/create-admin',
+  path: '/create-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,35 +37,35 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/create-admin': typeof CreateAdminRoute
   '/dashboard': typeof DashboardRoute
-  '/debug-env': typeof DebugEnvRoute
   '/login': typeof LoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/create-admin': typeof CreateAdminRoute
   '/dashboard': typeof DashboardRoute
-  '/debug-env': typeof DebugEnvRoute
   '/login': typeof LoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/create-admin': typeof CreateAdminRoute
   '/dashboard': typeof DashboardRoute
-  '/debug-env': typeof DebugEnvRoute
   '/login': typeof LoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/debug-env' | '/login'
+  fullPaths: '/' | '/create-admin' | '/dashboard' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/debug-env' | '/login'
-  id: '__root__' | '/' | '/dashboard' | '/debug-env' | '/login'
+  to: '/' | '/create-admin' | '/dashboard' | '/login'
+  id: '__root__' | '/' | '/create-admin' | '/dashboard' | '/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CreateAdminRoute: typeof CreateAdminRoute
   DashboardRoute: typeof DashboardRoute
-  DebugEnvRoute: typeof DebugEnvRoute
   LoginRoute: typeof LoginRoute
 }
 
@@ -78,18 +78,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/debug-env': {
-      id: '/debug-env'
-      path: '/debug-env'
-      fullPath: '/debug-env'
-      preLoaderRoute: typeof DebugEnvRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-admin': {
+      id: '/create-admin'
+      path: '/create-admin'
+      fullPath: '/create-admin'
+      preLoaderRoute: typeof CreateAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,8 +104,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CreateAdminRoute: CreateAdminRoute,
   DashboardRoute: DashboardRoute,
-  DebugEnvRoute: DebugEnvRoute,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
