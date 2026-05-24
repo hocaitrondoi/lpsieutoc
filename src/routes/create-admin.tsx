@@ -15,11 +15,10 @@ function decodeJwt(token: string) {
     return null;
   }
 }
-
 const createAdminUser = createServerFn({ method: 'GET' }).handler(async () => {
   try {
-    const email = 'hocaitrondoi@gmail.com';
-    const password = 'Vietyoda26';
+    const email = 'quocminhai@gmail.com';
+    const password = '12345abc';
 
     const SUPABASE_URL = getEnv('SUPABASE_URL') || '';
     const SUPABASE_PUBLISHABLE_KEY = getEnv('SUPABASE_PUBLISHABLE_KEY') || '';
