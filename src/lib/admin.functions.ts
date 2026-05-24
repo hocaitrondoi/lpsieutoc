@@ -3,46 +3,6 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const ADMIN_EMAIL = "quocminhai@gmail.com";
-const ADMIN_PASSWORD = "Vietyod@ad";
-
-// Idempotent: create the admin account if missing, ensure admin role.
-export const bootstrapAdmin = createServerFn({ method: "POST" }).handler(async () => {
-  // Try create user
-  const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-    email: ADMIN_EMAIL,
-    password: ADMIN_PASSWORD,
-    email_confirm: true,
-    user_metadata: { full_name: "Quốc Minh AI (Admin)" },
-  });
-
-  let userId = created?.user?.id;
-
-  if (createErr && !userId) {
-    // Likely already exists — look it up
-    const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    const found = list?.users.find((u) => u.email === ADMIN_EMAIL);
-    userId = found?.id;
-    // Force reset password to known value
-    if (userId) {
-      await supabaseAdmin.auth.admin.updateUserById(userId, {
-        password: ADMIN_PASSWORD,
-        email_confirm: true,
-      });
-    }
-  }
-
-  if (!userId) {
-    return { ok: false, error: createErr?.message ?? "Cannot create admin" };
-  }
-
-  await supabaseAdmin
-    .from("user_roles")
-    .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
-
-  return { ok: true, userId };
-});
-
 const createStudentSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6).max(72),
