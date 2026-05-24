@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Wand2, LogOut, PlayCircle, CheckCircle2, Users, UserPlus, BookOpen, Shield } from "lucide-react";
+import { Wand2, LogOut, PlayCircle, CheckCircle2, Users, UserPlus, BookOpen, Shield, Plus, Pencil, Trash2, Save, X, RefreshCw, Video } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { createStudent, listStudents } from "@/lib/admin.functions";
+import { createStudent, listStudents, createLesson, updateLesson, deleteLesson } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -28,13 +28,47 @@ function DashboardPage() {
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [profileName, setProfileName] = useState("");
 
+  // Server functions
   const createStudentFn = useServerFn(createStudent);
   const listStudentsFn = useServerFn(listStudents);
+  const createLessonFn = useServerFn(createLesson);
+  const updateLessonFn = useServerFn(updateLesson);
+  const deleteLessonFn = useServerFn(deleteLesson);
 
+  // Student state
   const [students, setStudents] = useState<Student[]>([]);
   const [newStudent, setNewStudent] = useState({ full_name: "", email: "", password: "" });
   const [adminMsg, setAdminMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [adminBusy, setAdminBusy] = useState(false);
+  const [studentListError, setStudentListError] = useState<string | null>(null);
+
+  // Lesson management state
+  const [newLesson, setNewLesson] = useState({ title: "", description: "", video_url: "" });
+  const [lessonBusy, setLessonBusy] = useState(false);
+  const [lessonMsg, setLessonMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
+  const [editLessonData, setEditLessonData] = useState({ title: "", description: "", video_url: "" });
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  // Refresh lessons from Supabase
+  const refreshLessons = async (courseId: string) => {
+    const { data: lessonRows } = await supabase
+      .from("lessons").select("*").eq("course_id", courseId).order("order_index");
+    setLessons(lessonRows ?? []);
+    return lessonRows ?? [];
+  };
+
+  // Refresh students from server
+  const refreshStudents = async () => {
+    setStudentListError(null);
+    try {
+      const res = await listStudentsFn();
+      setStudents(res.students);
+    } catch (e: any) {
+      console.error("listStudents error:", e);
+      setStudentListError(e?.message ?? "Không thể tải danh sách học viên");
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -56,43 +90,104 @@ function DashboardPage() {
       setProfileName(prof?.full_name || prof?.email || sess.session.user.email || "Học viên");
       if (courseRow) {
         setCourse(courseRow);
-        const { data: lessonRows } = await supabase
-          .from("lessons").select("*").eq("course_id", courseRow.id).order("order_index");
-        setLessons(lessonRows ?? []);
-        setActiveLesson((lessonRows ?? [])[0] ?? null);
+        const lessonRows = await refreshLessons(courseRow.id);
+        setActiveLesson(lessonRows[0] ?? null);
       }
       if (admin) {
-        try {
-          const res = await listStudentsFn();
-          setStudents(res.students);
-        } catch (e) {
-          console.error(e);
-        }
+        await refreshStudents();
       }
       setLoading(false);
     })();
     return () => { mounted = false; };
-  }, [navigate, listStudentsFn]);
+  }, [navigate]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/login" });
   };
 
+  // ====== STUDENT HANDLERS ======
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminMsg(null);
     setAdminBusy(true);
     try {
       await createStudentFn({ data: newStudent });
-      setAdminMsg({ type: "ok", text: `Đã cấp tài khoản cho ${newStudent.full_name}` });
+      setAdminMsg({ type: "ok", text: `✅ Đã cấp tài khoản cho ${newStudent.full_name}` });
       setNewStudent({ full_name: "", email: "", password: "" });
-      const res = await listStudentsFn();
-      setStudents(res.students);
+      await refreshStudents();
     } catch (err: any) {
       setAdminMsg({ type: "err", text: err?.message ?? "Có lỗi xảy ra" });
     } finally {
       setAdminBusy(false);
+    }
+  };
+
+  // ====== LESSON HANDLERS ======
+  const handleCreateLesson = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!course) return;
+    setLessonMsg(null);
+    setLessonBusy(true);
+    try {
+      await createLessonFn({ data: { ...newLesson, course_id: course.id } });
+      setLessonMsg({ type: "ok", text: `✅ Đã thêm bài giảng "${newLesson.title}"` });
+      setNewLesson({ title: "", description: "", video_url: "" });
+      const updated = await refreshLessons(course.id);
+      if (!activeLesson && updated.length > 0) setActiveLesson(updated[0]);
+    } catch (err: any) {
+      setLessonMsg({ type: "err", text: err?.message ?? "Có lỗi xảy ra" });
+    } finally {
+      setLessonBusy(false);
+    }
+  };
+
+  const handleStartEdit = (lesson: Lesson) => {
+    setEditingLessonId(lesson.id);
+    setEditLessonData({
+      title: lesson.title,
+      description: lesson.description ?? "",
+      video_url: lesson.video_url ?? "",
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingLessonId || !course) return;
+    setLessonBusy(true);
+    setLessonMsg(null);
+    try {
+      await updateLessonFn({ data: { id: editingLessonId, ...editLessonData } });
+      setLessonMsg({ type: "ok", text: `✅ Đã cập nhật bài giảng` });
+      setEditingLessonId(null);
+      const updated = await refreshLessons(course.id);
+      // Update active lesson if it was edited
+      if (activeLesson?.id === editingLessonId) {
+        const found = updated.find(l => l.id === editingLessonId);
+        if (found) setActiveLesson(found);
+      }
+    } catch (err: any) {
+      setLessonMsg({ type: "err", text: err?.message ?? "Có lỗi khi cập nhật" });
+    } finally {
+      setLessonBusy(false);
+    }
+  };
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!course) return;
+    setLessonBusy(true);
+    setLessonMsg(null);
+    try {
+      await deleteLessonFn({ data: { id: lessonId } });
+      setLessonMsg({ type: "ok", text: `✅ Đã xóa bài giảng` });
+      setDeleteConfirmId(null);
+      const updated = await refreshLessons(course.id);
+      if (activeLesson?.id === lessonId) {
+        setActiveLesson(updated[0] ?? null);
+      }
+    } catch (err: any) {
+      setLessonMsg({ type: "err", text: err?.message ?? "Có lỗi khi xóa" });
+    } finally {
+      setLessonBusy(false);
     }
   };
 
@@ -154,6 +249,9 @@ function DashboardPage() {
                   </li>
                 );
               })}
+              {lessons.length === 0 && (
+                <li className="px-3 py-4 text-center text-sm text-muted-foreground">Chưa có bài học nào</li>
+              )}
             </ul>
           </nav>
         </aside>
@@ -176,68 +274,244 @@ function DashboardPage() {
             </div>
           </div>
           <div className="rounded-2xl border border-border bg-surface p-6">
-            <h1 className="font-display text-2xl font-bold">{activeLesson?.title}</h1>
+            <h1 className="font-display text-2xl font-bold">{activeLesson?.title ?? "Chưa chọn bài học"}</h1>
             {activeLesson?.description && (
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{activeLesson.description}</p>
             )}
           </div>
 
-          {/* Admin area */}
+          {/* ====== ADMIN AREA ====== */}
           {isAdmin && (
-            <div className="rounded-2xl border border-primary/30 bg-surface p-6">
-              <div className="mb-5 flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                <h2 className="font-display text-xl font-bold">Khu vực Học Viên (Admin)</h2>
-              </div>
+            <div className="space-y-6">
 
-              <form onSubmit={handleCreateStudent} className="grid gap-3 sm:grid-cols-4">
-                <input required placeholder="Họ và tên" value={newStudent.full_name}
-                  onChange={(e) => setNewStudent({ ...newStudent, full_name: e.target.value })}
-                  className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none" />
-                <input required type="email" placeholder="Email" value={newStudent.email}
-                  onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-                  className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none" />
-                <input required minLength={6} placeholder="Mật khẩu (tối thiểu 6)" value={newStudent.password}
-                  onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
-                  className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none" />
-                <button disabled={adminBusy} type="submit"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-glow hover:scale-[1.02] disabled:opacity-60">
-                  <UserPlus className="h-4 w-4" /> {adminBusy ? "Đang tạo…" : "Cấp tài khoản"}
-                </button>
-              </form>
-              {adminMsg && (
-                <div className={`mt-3 rounded-lg px-3 py-2 text-sm ${
-                  adminMsg.type === "ok" ? "bg-emerald-500/10 text-emerald-400" : "bg-destructive/10 text-destructive"
-                }`}>{adminMsg.text}</div>
-              )}
+              {/* ===== QUẢN LÝ BÀI GIẢNG ===== */}
+              <div className="rounded-2xl border border-primary/30 bg-surface p-6">
+                <div className="mb-5 flex items-center gap-2">
+                  <Video className="h-5 w-5 text-primary" />
+                  <h2 className="font-display text-xl font-bold">Quản lý Bài Giảng (Admin)</h2>
+                </div>
 
-              <div className="mt-6">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-                  Danh sách học viên ({students.length})
-                </h3>
-                <div className="overflow-hidden rounded-xl border border-border">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                      <tr>
-                        <th className="px-4 py-2.5">Họ tên</th>
-                        <th className="px-4 py-2.5">Email</th>
-                        <th className="px-4 py-2.5">Ngày tạo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {students.length === 0 ? (
-                        <tr><td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">Chưa có học viên</td></tr>
-                      ) : students.map((s) => (
-                        <tr key={s.id} className="border-t border-border">
-                          <td className="px-4 py-2.5">{s.full_name || "—"}</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{s.email}</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{new Date(s.created_at).toLocaleDateString("vi-VN")}</td>
+                {/* Form thêm bài giảng */}
+                <form onSubmit={handleCreateLesson} className="space-y-3 rounded-xl border border-border bg-background/40 p-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-primary">Thêm bài giảng mới</p>
+                  <input
+                    required
+                    placeholder="📝 Tên bài giảng *"
+                    value={newLesson.title}
+                    onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                  />
+                  <input
+                    placeholder="📄 Mô tả ngắn (không bắt buộc)"
+                    value={newLesson.description}
+                    onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                  />
+                  <input
+                    placeholder="🎬 Link video / Embed URL (YouTube, Vimeo, Drive...)"
+                    value={newLesson.video_url}
+                    onChange={(e) => setNewLesson({ ...newLesson, video_url: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                  />
+                  <button
+                    disabled={lessonBusy}
+                    type="submit"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow hover:scale-[1.02] disabled:opacity-60"
+                  >
+                    <Plus className="h-4 w-4" /> {lessonBusy ? "Đang thêm…" : "Thêm bài giảng"}
+                  </button>
+                </form>
+
+                {/* Thông báo */}
+                {lessonMsg && (
+                  <div className={`mt-3 rounded-lg px-3 py-2 text-sm ${
+                    lessonMsg.type === "ok" ? "bg-emerald-500/10 text-emerald-400" : "bg-destructive/10 text-destructive"
+                  }`}>{lessonMsg.text}</div>
+                )}
+
+                {/* Bảng danh sách bài giảng */}
+                <div className="mt-5">
+                  <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
+                    Danh sách bài giảng ({lessons.length})
+                  </h3>
+                  <div className="overflow-hidden rounded-xl border border-border">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                        <tr>
+                          <th className="px-4 py-2.5 w-12">STT</th>
+                          <th className="px-4 py-2.5">Tên bài giảng</th>
+                          <th className="px-4 py-2.5 hidden md:table-cell">Link video</th>
+                          <th className="px-4 py-2.5 text-right">Hành động</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {lessons.length === 0 ? (
+                          <tr><td colSpan={4} className="px-4 py-6 text-center text-muted-foreground">Chưa có bài giảng nào — hãy thêm bài đầu tiên ở trên!</td></tr>
+                        ) : lessons.map((l, idx) => (
+                          <tr key={l.id} className="border-t border-border">
+                            {editingLessonId === l.id ? (
+                              /* ===== EDIT MODE ===== */
+                              <>
+                                <td className="px-4 py-2.5 text-muted-foreground">{idx + 1}</td>
+                                <td className="px-4 py-2">
+                                  <input
+                                    value={editLessonData.title}
+                                    onChange={(e) => setEditLessonData({ ...editLessonData, title: e.target.value })}
+                                    className="w-full rounded-lg border border-primary/40 bg-background px-2 py-1.5 text-sm focus:outline-none"
+                                  />
+                                  <input
+                                    value={editLessonData.description}
+                                    onChange={(e) => setEditLessonData({ ...editLessonData, description: e.target.value })}
+                                    placeholder="Mô tả"
+                                    className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1.5 text-xs focus:outline-none"
+                                  />
+                                </td>
+                                <td className="px-4 py-2 hidden md:table-cell">
+                                  <input
+                                    value={editLessonData.video_url}
+                                    onChange={(e) => setEditLessonData({ ...editLessonData, video_url: e.target.value })}
+                                    placeholder="Link video"
+                                    className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-xs focus:outline-none"
+                                  />
+                                </td>
+                                <td className="px-4 py-2.5 text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <button onClick={handleSaveEdit} disabled={lessonBusy}
+                                      className="rounded-lg bg-emerald-500/20 p-1.5 text-emerald-400 hover:bg-emerald-500/30 disabled:opacity-50" title="Lưu">
+                                      <Save className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => setEditingLessonId(null)}
+                                      className="rounded-lg bg-muted p-1.5 text-muted-foreground hover:bg-muted/80" title="Hủy">
+                                      <X className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            ) : deleteConfirmId === l.id ? (
+                              /* ===== DELETE CONFIRM ===== */
+                              <>
+                                <td className="px-4 py-2.5 text-muted-foreground">{idx + 1}</td>
+                                <td colSpan={2} className="px-4 py-2.5">
+                                  <span className="text-destructive font-semibold">Xác nhận xóa bài "{l.title}"?</span>
+                                </td>
+                                <td className="px-4 py-2.5 text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <button onClick={() => handleDeleteLesson(l.id)} disabled={lessonBusy}
+                                      className="rounded-lg bg-destructive/20 px-3 py-1.5 text-xs font-bold text-destructive hover:bg-destructive/30 disabled:opacity-50">
+                                      Xóa luôn
+                                    </button>
+                                    <button onClick={() => setDeleteConfirmId(null)}
+                                      className="rounded-lg bg-muted px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/80">
+                                      Hủy
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            ) : (
+                              /* ===== NORMAL VIEW ===== */
+                              <>
+                                <td className="px-4 py-2.5 text-muted-foreground">{idx + 1}</td>
+                                <td className="px-4 py-2.5">
+                                  <div className="font-medium">{l.title}</div>
+                                  {l.description && <div className="text-xs text-muted-foreground mt-0.5">{l.description}</div>}
+                                </td>
+                                <td className="px-4 py-2.5 hidden md:table-cell">
+                                  {l.video_url ? (
+                                    <span className="text-xs text-primary truncate block max-w-[200px]">{l.video_url}</span>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">—</span>
+                                  )}
+                                </td>
+                                <td className="px-4 py-2.5 text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <button onClick={() => handleStartEdit(l)}
+                                      className="rounded-lg bg-primary/10 p-1.5 text-primary hover:bg-primary/20" title="Sửa">
+                                      <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => setDeleteConfirmId(l.id)}
+                                      className="rounded-lg bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20" title="Xóa">
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
+
+              {/* ===== QUẢN LÝ HỌC VIÊN ===== */}
+              <div className="rounded-2xl border border-primary/30 bg-surface p-6">
+                <div className="mb-5 flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  <h2 className="font-display text-xl font-bold">Quản lý Học Viên (Admin)</h2>
+                </div>
+
+                <form onSubmit={handleCreateStudent} className="grid gap-3 sm:grid-cols-4">
+                  <input required placeholder="Họ và tên" value={newStudent.full_name}
+                    onChange={(e) => setNewStudent({ ...newStudent, full_name: e.target.value })}
+                    className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none" />
+                  <input required type="email" placeholder="Email" value={newStudent.email}
+                    onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+                    className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none" />
+                  <input required minLength={6} placeholder="Mật khẩu (tối thiểu 6)" value={newStudent.password}
+                    onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
+                    className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none" />
+                  <button disabled={adminBusy} type="submit"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-glow hover:scale-[1.02] disabled:opacity-60">
+                    <UserPlus className="h-4 w-4" /> {adminBusy ? "Đang tạo…" : "Cấp tài khoản"}
+                  </button>
+                </form>
+                {adminMsg && (
+                  <div className={`mt-3 rounded-lg px-3 py-2 text-sm ${
+                    adminMsg.type === "ok" ? "bg-emerald-500/10 text-emerald-400" : "bg-destructive/10 text-destructive"
+                  }`}>{adminMsg.text}</div>
+                )}
+
+                <div className="mt-6">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-muted-foreground">
+                      Danh sách học viên ({students.length})
+                    </h3>
+                    <button onClick={refreshStudents}
+                      className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+                      <RefreshCw className="h-3 w-3" /> Tải lại
+                    </button>
+                  </div>
+
+                  {studentListError && (
+                    <div className="mb-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{studentListError}</div>
+                  )}
+
+                  <div className="overflow-hidden rounded-xl border border-border">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                        <tr>
+                          <th className="px-4 py-2.5">Họ tên</th>
+                          <th className="px-4 py-2.5">Email</th>
+                          <th className="px-4 py-2.5">Ngày tạo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {students.length === 0 ? (
+                          <tr><td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">Chưa có học viên</td></tr>
+                        ) : students.map((s) => (
+                          <tr key={s.id} className="border-t border-border">
+                            <td className="px-4 py-2.5">{s.full_name || "—"}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{s.email}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{new Date(s.created_at).toLocaleDateString("vi-VN")}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
         </section>
