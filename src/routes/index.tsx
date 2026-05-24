@@ -3,7 +3,7 @@ import { useState } from "react";
 import {
   Zap, Clock, TrendingUp, Shield, Sparkles, Rocket, Target, Award,
   CheckCircle2, XCircle, ArrowRight, Star, Gift, Lock, Flame, Quote,
-  ChevronDown, Bot, Layers, BarChart3, Globe, Wand2,
+  ChevronDown, Bot, Layers, BarChart3, Globe, Wand2, X, Copy, Check,
 } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 
@@ -45,8 +45,137 @@ const PrimaryCTA = ({ children = "Sở Hữu PageForge AI Ngay", small = false }
 );
 
 function LandingPage() {
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // ➡️ Dán URL Google Apps Script của anh vào đây sau khi tạo xong
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQSiSlD0RqYIGXU2L591-m4KhDHHGAz6YsMkKSCovnPJIJpdZML0UUgWMH4-lTcyl_/exec";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          timestamp: new Date().toLocaleString("vi-VN"),
+          status: "Chờ thanh toán",
+        }),
+      });
+    } catch (_) {
+      // silent — vẫn hiện QR cho khách
+    }
+    setIsSubmitting(false);
+    setShowModal(true);
+  };
+
+  const transferNote = `PAGEF ${formData.name} ${formData.phone}`;
+
+  const copyNote = () => {
+    navigator.clipboard.writeText(transferNote);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <main className="relative overflow-hidden bg-background text-foreground">
+
+      {/* ===== PAYMENT MODAL ===== */}
+      {showModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+          onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+        >
+          <div className="relative w-full max-w-md overflow-y-auto max-h-[90vh] rounded-3xl border-2 border-primary/40 bg-surface p-8 shadow-2xl">
+            {/* Close button */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:bg-primary/10 hover:text-foreground transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="text-center">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
+                <Flame className="h-3.5 w-3.5" /> Bước cuối cùng
+              </div>
+              <h3 className="mt-2 font-display text-2xl font-bold">Quét QR để thanh toán</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Chuyển khoản để hoàn tất đặt mua — nhận tài khoản ngay trong 15 phút
+              </p>
+            </div>
+
+            {/* QR Code */}
+            <div className="mt-6 flex justify-center">
+              <div className="overflow-hidden rounded-2xl border-2 border-primary/30 bg-white p-3">
+                <img
+                  src={`https://api.vietqr.io/image/970422-0913579509-3MbCFys.jpg?accountName=PHU%20QUOC%20NAM&amount=1490000&addInfo=${encodeURIComponent(transferNote)}`}
+                  alt="QR Code thanh toán PageForge AI"
+                  className="h-56 w-56 object-contain"
+                />
+              </div>
+            </div>
+
+            {/* Bank Info */}
+            <div className="mt-5 space-y-3 rounded-2xl border border-border bg-background/40 p-5 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Ngân hàng</span>
+                <span className="font-bold">MB Bank</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Số tài khoản</span>
+                <span className="font-mono font-bold tracking-wider">0913 579 509</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Chủ tài khoản</span>
+                <span className="font-bold uppercase">PHU QUOC NAM</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Số tiền</span>
+                <span className="font-display text-xl font-extrabold text-gradient-gold">1.490.000đ</span>
+              </div>
+              <div className="flex items-start justify-between gap-3 border-t border-border pt-3">
+                <div>
+                  <div className="text-muted-foreground">Nội dung chuyển khoản</div>
+                  <div className="mt-0.5 font-bold text-primary">{transferNote}</div>
+                </div>
+                <button
+                  onClick={copyNote}
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/20"
+                >
+                  {copied ? (
+                    <><Check className="h-3.5 w-3.5" /> Đã copy!</>
+                  ) : (
+                    <><Copy className="h-3.5 w-3.5" /> Copy</>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Customer info reminder */}
+            <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
+              <p className="font-semibold text-foreground">Thông tin đăng ký của bạn:</p>
+              <p className="mt-1 text-muted-foreground">👤 {formData.name}</p>
+              <p className="text-muted-foreground">📧 {formData.email}</p>
+              <p className="text-muted-foreground">📱 {formData.phone}</p>
+            </div>
+
+            <p className="mt-4 text-center text-xs text-muted-foreground">
+              🔒 Sau khi chuyển khoản thành công, chúng tôi sẽ gửi tài khoản qua email{" "}
+              <strong className="text-foreground">{formData.email}</strong> trong vòng 15 phút.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[800px] bg-radial-glow" />
 
       {/* NAV */}
@@ -609,11 +738,50 @@ function LandingPage() {
               ))}
             </div>
 
+            {/* ORDER FORM */}
             <div className="mt-10">
-              <PrimaryCTA>ĐẶT MUA NGAY — Giảm 95%</PrimaryCTA>
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <input
+                  id="order-name"
+                  type="text"
+                  placeholder="👤 Họ và tên đầy đủ *"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background/70 px-4 py-4 text-foreground placeholder:text-muted-foreground/60 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+                <input
+                  id="order-email"
+                  type="email"
+                  placeholder="📧 Địa chỉ email nhận tài khoản *"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background/70 px-4 py-4 text-foreground placeholder:text-muted-foreground/60 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+                <input
+                  id="order-phone"
+                  type="tel"
+                  placeholder="📱 Số điện thoại liên hệ *"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background/70 px-4 py-4 text-foreground placeholder:text-muted-foreground/60 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+                <button
+                  id="order-submit"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent font-bold text-primary-foreground shadow-glow transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_oklch(0.78_0.16_75/0.6)] px-8 py-5 text-base sm:text-lg disabled:opacity-70 disabled:cursor-not-allowed mt-1"
+                >
+                  <Flame className="h-5 w-5" />
+                  {isSubmitting ? "Đang xử lý..." : "ĐẶT MUA NGAY — Giảm 95%"}
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </button>
+              </form>
             </div>
             <div className="mt-4 text-xs text-muted-foreground">
-              🔒 Thanh toán an toàn qua Momo, ZaloPay, VNPAY, thẻ tín dụng. Nhận tài khoản ngay sau khi thanh toán.
+              🔒 Điền thông tin → Nhận QR chuyển khoản → Nhận tài khoản qua email trong 15 phút.
             </div>
           </div>
         </div>
