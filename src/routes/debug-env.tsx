@@ -30,6 +30,7 @@ const getDebugEnv = createServerFn({ method: 'GET' }).handler(async () => {
     isGlobalEnvSet: !!(globalThis as any).ENV,
     keysWithType,
     processEnvKeys: Object.keys(process.env),
+    debugVersion: "v2-all-keys",
   };
 });
 
