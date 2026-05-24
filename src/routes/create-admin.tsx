@@ -85,7 +85,13 @@ const createAdminUser = createServerFn({ method: 'GET' }).handler(async () => {
     return { status: 'success', message: 'Admin user successfully created and assigned admin role!' };
   } catch (err: any) {
     console.error('Error creating admin:', err);
-    return { status: 'error', message: err.message || String(err) };
+    let stringifiedErr = '';
+    try {
+      stringifiedErr = JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
+    } catch (e) {
+      stringifiedErr = String(err);
+    }
+    return { status: 'error', message: `Detailed Error: ${stringifiedErr}` };
   }
 });
 
