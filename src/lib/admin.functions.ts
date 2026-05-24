@@ -34,11 +34,12 @@ export const createStudent = createServerFn({ method: "POST" })
       .from("user_roles")
       .upsert({ user_id: created.user.id, role: "student" }, { onConflict: "user_id,role" });
 
-    // Ensure profile has full_name (trigger may have set email only)
-    await supabaseAdmin
+    // Use upsert to guarantee a profile is created even if database triggers are disabled
+    const { error: profileError } = await supabaseAdmin
       .from("profiles")
-      .update({ full_name: data.full_name, email: data.email })
-      .eq("id", created.user.id);
+      .upsert({ id: created.user.id, full_name: data.full_name, email: data.email }, { onConflict: "id" });
+    
+    if (profileError) throw new Error(profileError.message);
 
     return { ok: true, id: created.user.id };
   });
@@ -46,26 +47,43 @@ export const createStudent = createServerFn({ method: "POST" })
 export const listStudents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: roleRow } = await context.supabase
+    const { data: roleRow, error: roleRowError } = await context.supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", context.userId)
       .eq("role", "admin")
       .maybeSingle();
+    if (roleRowError) throw new Error(roleRowError.message);
     if (!roleRow) throw new Error("Forbidden: admin only");
 
-    const { data: students } = await supabaseAdmin
+    // 1. Get all user IDs with student role
+    const { data: roleRows, error: roleError } = await supabaseAdmin
       .from("user_roles")
-      .select("user_id, profiles:profiles!inner(id, full_name, email, created_at)")
-      .eq("role", "student")
-      .order("user_id");
+      .select("user_id")
+      .eq("role", "student");
+
+    if (roleError) throw new Error(roleError.message);
+    if (!roleRows || roleRows.length === 0) {
+      return { students: [] };
+    }
+
+    const userIds = roleRows.map(r => r.user_id);
+
+    // 2. Fetch profiles for these user IDs
+    const { data: profileRows, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("id, full_name, email, created_at")
+      .in("id", userIds)
+      .order("created_at", { ascending: false });
+
+    if (profileError) throw new Error(profileError.message);
 
     return {
-      students: (students ?? []).map((r: any) => ({
-        id: r.profiles.id,
-        full_name: r.profiles.full_name,
-        email: r.profiles.email,
-        created_at: r.profiles.created_at,
+      students: (profileRows ?? []).map((p) => ({
+        id: p.id,
+        full_name: p.full_name,
+        email: p.email,
+        created_at: p.created_at,
       })),
     };
   });
