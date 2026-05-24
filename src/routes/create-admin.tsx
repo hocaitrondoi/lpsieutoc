@@ -1,11 +1,42 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { supabaseAdmin } from '../integrations/supabase/client.server';
+import { getEnv } from '../lib/env';
+
+
+function decodeJwt(token: string) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payloadJson = atob(payloadBase64);
+    return JSON.parse(payloadJson);
+  } catch (e) {
+    return null;
+  }
+}
 
 const createAdminUser = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const email = 'hocaitrondoi@gmail.com';
     const password = 'Vietyoda26';
+
+    const SUPABASE_URL = getEnv('SUPABASE_URL') || '';
+    const SUPABASE_PUBLISHABLE_KEY = getEnv('SUPABASE_PUBLISHABLE_KEY') || '';
+    const SUPABASE_SERVICE_ROLE_KEY = getEnv('SUPABASE_SERVICE_ROLE_KEY') || '';
+
+    const anonPayload = decodeJwt(SUPABASE_PUBLISHABLE_KEY);
+    const servicePayload = decodeJwt(SUPABASE_SERVICE_ROLE_KEY);
+
+    const anonRef = anonPayload?.ref || 'unknown';
+    const serviceRef = servicePayload?.ref || 'unknown';
+
+    if (serviceRef !== 'unknown' && anonRef !== 'unknown' && serviceRef !== anonRef) {
+      return {
+        status: 'error',
+        message: `Mật khẩu dự án không khớp! Khóa service_role bạn vừa nhập thuộc dự án "${serviceRef}", nhưng trang web này đang được cấu hình chạy trên dự án "${anonRef}". Vui lòng lấy đúng khóa service_role của dự án "${anonRef}" trên Supabase!`
+      };
+    }
 
     // 1. Create the user using admin auth
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
