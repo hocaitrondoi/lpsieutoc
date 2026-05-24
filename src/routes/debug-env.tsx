@@ -29,7 +29,7 @@ const getDebugEnv = createServerFn({ method: 'GET' }).handler(async () => {
   return {
     isGlobalEnvSet: !!(globalThis as any).ENV,
     keysWithType,
-    processEnvKeys: Object.keys(process.env).filter(k => k.startsWith('SUPABASE')),
+    processEnvKeys: Object.keys(process.env),
   };
 });
 
