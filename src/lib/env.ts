@@ -12,7 +12,7 @@ export function getEnv(key: string): string | undefined {
   
   // Server-side
   const globalEnv = (globalThis as any).ENV;
-  if (globalEnv && typeof globalEnv === 'object' && key in globalEnv) {
+  if (globalEnv && typeof globalEnv === 'object' && typeof globalEnv[key] === 'string') {
     return globalEnv[key];
   }
   

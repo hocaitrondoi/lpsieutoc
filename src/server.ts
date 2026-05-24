@@ -72,7 +72,11 @@ export default {
       // Bind Cloudflare env variables to globalThis.ENV and process.env so that they can be accessed server-side
       if (env && typeof env === "object") {
         (globalThis as any).ENV = env;
-        for (const [key, value] of Object.entries(env)) {
+        
+        // Explicitly copy known bindings since host-defined objects on Cloudflare may have non-enumerable properties
+        const keys = ["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "SUPABASE_SERVICE_ROLE_KEY"];
+        for (const key of keys) {
+          const value = (env as any)[key];
           if (typeof value === "string") {
             process.env[key] = value;
           }

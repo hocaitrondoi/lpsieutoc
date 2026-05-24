@@ -2,12 +2,15 @@ import { createFileRoute } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 
 const getDebugEnv = createServerFn({ method: 'GET' }).handler(async () => {
+  const globalEnv = (globalThis as any).ENV || {};
   return {
     isGlobalEnvSet: !!(globalThis as any).ENV,
-    globalEnvKeys: (globalThis as any).ENV ? Object.keys((globalThis as any).ENV) : [],
-    processEnvKeys: Object.keys(process.env),
-    supabaseUrlExists: !!process.env.SUPABASE_URL,
-    globalSupabaseUrlExists: !!((globalThis as any).ENV?.SUPABASE_URL),
+    supabaseUrlInGlobalEnv: typeof globalEnv.SUPABASE_URL,
+    supabasePublishableKeyInGlobalEnv: typeof globalEnv.SUPABASE_PUBLISHABLE_KEY,
+    supabaseServiceRoleKeyInGlobalEnv: typeof globalEnv.SUPABASE_SERVICE_ROLE_KEY,
+    supabaseUrlInProcessEnv: typeof process.env.SUPABASE_URL,
+    supabasePublishableKeyInProcessEnv: typeof process.env.SUPABASE_PUBLISHABLE_KEY,
+    supabaseServiceRoleKeyInProcessEnv: typeof process.env.SUPABASE_SERVICE_ROLE_KEY,
   };
 });
 
