@@ -7,8 +7,8 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
   head: () => ({
     meta: [
-      { title: "Đăng Nhập — PageForge AI" },
-      { name: "description", content: "Đăng nhập học viên PageForge AI." },
+      { title: "Đăng Nhập — SADOMA AI" },
+      { name: "description", content: "Đăng nhập học viên SADOMA AI." },
     ],
   }),
 });
@@ -71,7 +71,7 @@ function LoginPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
             <Wand2 className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span>PageForge<span className="text-primary"> AI</span></span>
+          <span>SADOMA<span className="text-primary"> AI</span></span>
         </div>
         <div className="rounded-2xl border border-border bg-surface p-8 shadow-glow">
           <div className="text-center">

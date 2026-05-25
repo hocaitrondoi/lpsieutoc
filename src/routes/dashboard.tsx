@@ -9,7 +9,7 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
   head: () => ({
     meta: [
-      { title: "Dashboard Học Viên — PageForge AI" },
+      { title: "Dashboard Học Viên — SADOMA AI" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -372,7 +372,7 @@ function DashboardPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
               <Wand2 className="h-4 w-4 text-primary-foreground" />
             </div>
-            PageForge<span className="text-primary"> AI</span>
+            SADOMA<span className="text-primary"> AI</span>
           </Link>
           <div className="flex items-center gap-3">
             {isAdmin && (
