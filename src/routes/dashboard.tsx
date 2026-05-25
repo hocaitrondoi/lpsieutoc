@@ -19,6 +19,38 @@ type Lesson = { id: string; title: string; description: string | null; video_url
 type Course = { id: string; title: string; description: string | null };
 type Student = { id: string; full_name: string | null; email: string | null; created_at: string; course_ids?: string[] };
 
+const getVideoEmbedUrl = (urlOrIframe: string | null): string => {
+  if (!urlOrIframe) return "";
+  const trimmed = urlOrIframe.trim();
+  
+  if (trimmed.startsWith("<iframe") || trimmed.includes("<iframe")) {
+    const match = trimmed.match(/src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  if (trimmed.includes("youtube.com/watch")) {
+    try {
+      const urlObj = new URL(trimmed);
+      const videoId = urlObj.searchParams.get("v");
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    } catch (_) {}
+  } else if (trimmed.includes("youtu.be/")) {
+    try {
+      const parts = trimmed.split("youtu.be/");
+      if (parts[1]) {
+        const videoId = parts[1].split("?")[0];
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+    } catch (_) {}
+  }
+  
+  return trimmed;
+};
+
 function DashboardPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -452,7 +484,7 @@ function DashboardPage() {
             <div className="relative aspect-video w-full">
               {activeLesson?.video_url ? (
                 <iframe
-                  src={activeLesson.video_url}
+                  src={getVideoEmbedUrl(activeLesson.video_url)}
                   className="absolute inset-0 h-full w-full"
                   title={activeLesson.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
