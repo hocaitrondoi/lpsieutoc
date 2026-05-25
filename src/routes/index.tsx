@@ -55,9 +55,18 @@ function LandingPage() {
   // ➡️ Dán URL Google Apps Script của anh vào đây sau khi tạo xong
   const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQSiSlD0RqYIGXU2L591-m4KhDHHGAz6YsMkKSCovnPJIJpdZML0UUgWMH4-lTcyl_/exec";
 
+  const createOrderFn = useServerFn(createOrder);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    // 1) Lưu backup vào database (admin xem được trong Lovable Cloud)
+    try {
+      await createOrderFn({ data: formData });
+    } catch (err) {
+      console.error("DB save failed:", err);
+    }
+    // 2) Gửi sang Google Sheet qua Apps Script (để thông báo + lưu sheet)
     try {
       await fetch(APPS_SCRIPT_URL, {
         method: "POST",
