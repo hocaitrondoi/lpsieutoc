@@ -13,13 +13,13 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "PageForge AI — Tạo Landing Page Bán Hàng Trong 60 Giây" },
+      { title: "SADOMA AI — Tạo Landing Page Bán Hàng Trong 60 Giây" },
       {
         name: "description",
         content:
           "Ứng dụng AI tạo landing page siêu tốc cho dân kinh doanh online. Không cần code, không cần designer. Tăng tỷ lệ chuyển đổi lên 3x trong 30 ngày.",
       },
-      { property: "og:title", content: "PageForge AI — Tạo Landing Page Bán Hàng Trong 60 Giây" },
+      { property: "og:title", content: "SADOMA AI — Tạo Landing Page Bán Hàng Trong 60 Giây" },
       { property: "og:description", content: "Biến ý tưởng thành landing page chuyển đổi cao chỉ trong 60 giây." },
     ],
     links: [
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-const PrimaryCTA = ({ children = "Sở Hữu PageForge AI Ngay", small = false }) => (
+const PrimaryCTA = ({ children = "Sở Hữu SADOMA AI Ngay", small = false }) => (
   <a
     href="#order"
     className={`group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent font-bold text-primary-foreground shadow-glow transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_oklch(0.78_0.16_75/0.6)] ${
@@ -129,7 +129,7 @@ function LandingPage() {
               <div className="overflow-hidden rounded-2xl border-2 border-primary/30 bg-white p-3">
                 <img
                   src={`https://api.vietqr.io/image/970422-0913579509-3MbCFys.jpg?accountName=PHU%20QUOC%20NAM&amount=1490000&addInfo=${encodeURIComponent(transferNote)}`}
-                  alt="QR Code thanh toán PageForge AI"
+                  alt="QR Code thanh toán SADOMA AI"
                   className="h-56 w-56 object-contain"
                 />
               </div>
@@ -195,7 +195,7 @@ function LandingPage() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
             <Wand2 className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span>PageForge<span className="text-primary"> AI</span></span>
+          <span>SADOMA<span className="text-primary"> AI</span></span>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -222,7 +222,7 @@ function LandingPage() {
         </h1>
 
         <p className="mx-auto mt-8 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          PageForge AI là vũ khí bí mật của hơn <strong className="text-foreground">12.847 chủ shop, marketer và freelancer</strong> Việt Nam —
+          SADOMA AI là vũ khí bí mật của hơn <strong className="text-foreground">12.847 chủ shop, marketer và freelancer</strong> Việt Nam —
           giúp bạn biến một ý tưởng sản phẩm thành landing page bán hàng đẳng cấp agency,
           <strong className="text-foreground"> không cần code, không cần designer, không cần copywriter</strong>.
         </p>
@@ -356,7 +356,7 @@ function LandingPage() {
         <H2>Từ <span className="text-gradient-gold">87 triệu nợ quảng cáo</span> đến 6.2 tỷ doanh thu trong 9 tháng</H2>
         <Prose>
           <p>
-            Năm 2022, tôi — đồng sáng lập của PageForge AI — đang đứng bên bờ vực phá sản. Tôi bán khoá học online,
+            Năm 2022, tôi — đồng sáng lập của SADOMA AI — đang đứng bên bờ vực phá sản. Tôi bán khoá học online,
             đổ <strong className="text-foreground">87 triệu</strong> vào Facebook Ads trong 4 tháng. Kết quả?
             Doanh thu chưa được 30 triệu. Tỷ lệ chuyển đổi của landing page: <strong className="text-foreground">0.7%</strong>.
           </p>
@@ -380,7 +380,7 @@ function LandingPage() {
           <p>
             Tôi nhận ra: <strong className="text-foreground">đây không nên là vũ khí riêng của tôi</strong>.
             Tôi gom đội ngũ 9 kỹ sư AI, copywriter và designer top đầu Việt Nam, dành 14 tháng để biến con bot
-            cá nhân thành một sản phẩm mà <em>bất kỳ ai</em> cũng dùng được. Đó là cách PageForge AI ra đời.
+            cá nhân thành một sản phẩm mà <em>bất kỳ ai</em> cũng dùng được. Đó là cách SADOMA AI ra đời.
           </p>
         </Prose>
       </Section>
@@ -391,17 +391,17 @@ function LandingPage() {
           <Rocket className="h-4 w-4" /> Giải pháp đột phá
         </div>
         <H2>
-          PageForge AI — Cỗ máy tạo landing page <span className="text-gradient-gold">bán hàng tự động</span>
+          SADOMA AI — Cỗ máy tạo landing page <span className="text-gradient-gold">bán hàng tự động</span>
         </H2>
         <Prose>
           <p>
-            PageForge AI là một ứng dụng web sử dụng <strong className="text-foreground">AI thế hệ mới</strong> được huấn luyện
+            SADOMA AI là một ứng dụng web sử dụng <strong className="text-foreground">AI thế hệ mới</strong> được huấn luyện
             riêng trên <strong className="text-foreground">hơn 18.000 landing page</strong> có tỷ lệ chuyển đổi cao nhất tại
             thị trường Việt Nam, Đông Nam Á và Mỹ.
           </p>
           <p>
             Bạn chỉ cần trả lời <strong className="text-foreground">7 câu hỏi đơn giản</strong> về sản phẩm, khách hàng và
-            mục tiêu. PageForge AI sẽ tự động viết toàn bộ nội dung, thiết kế giao diện, tối ưu chuyển đổi và xuất bản
+            mục tiêu. SADOMA AI sẽ tự động viết toàn bộ nội dung, thiết kế giao diện, tối ưu chuyển đổi và xuất bản
             landing page chỉ trong <strong className="text-foreground">60 giây</strong>. Tất cả đều có thể tinh chỉnh bằng giọng nói hoặc kéo thả.
           </p>
         </Prose>
@@ -411,7 +411,7 @@ function LandingPage() {
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {[
             { n: "01", t: "Mô tả sản phẩm", d: "Trả lời 7 câu hỏi do AI hỏi: bạn bán gì, cho ai, giá bao nhiêu, USP là gì." },
-            { n: "02", t: "AI viết & thiết kế", d: "PageForge AI nghiên cứu thị trường, viết copy theo công thức chuyển đổi cao, chọn ảnh và bố cục tối ưu." },
+            { n: "02", t: "AI viết & thiết kế", d: "SADOMA AI nghiên cứu thị trường, viết copy theo công thức chuyển đổi cao, chọn ảnh và bố cục tối ưu." },
             { n: "03", t: "Xuất bản & bán", d: "Bấm Publish. Trang lên sóng với domain riêng, tích hợp Pixel, GA4, Pancake, Haravan. Bắt đầu chạy ads ngay." },
           ].map((s) => (
             <div key={s.n} className="relative rounded-2xl border border-border bg-surface p-7">
@@ -514,7 +514,7 @@ function LandingPage() {
             <Quote className="h-10 w-10 text-primary" />
             <p className="mt-4 text-lg leading-relaxed">
               "Trước đây mình bán mỹ phẩm thủ công, chạy ads tốn 22 triệu/tháng, chốt được khoảng 70 đơn.
-              Sau khi dùng PageForge AI làm lại trang đặt hàng và 4 trang phụ cho từng dòng sản phẩm, mình test trong 2 tuần
+              Sau khi dùng SADOMA AI làm lại trang đặt hàng và 4 trang phụ cho từng dòng sản phẩm, mình test trong 2 tuần
               rồi giữ lại phiên bản tốt nhất. Đến nay chi phí ads còn <strong className="text-foreground">14 triệu</strong>,
               nhưng đơn lên <strong className="text-foreground">358 đơn/tháng</strong>. Cái mình bất ngờ nhất là phần copy —
               đọc cứ như có người hiểu khách hàng của mình hơn cả mình."
@@ -543,15 +543,15 @@ function LandingPage() {
       {/* SOCIAL PROOF */}
       <Section dark>
         <Eyebrow>12.847 khách hàng đã tin dùng</Eyebrow>
-        <H2>Họ nói gì về <span className="text-gradient-gold">PageForge AI</span>?</H2>
+        <H2>Họ nói gì về <span className="text-gradient-gold">SADOMA AI</span>?</H2>
 
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {[
-            { n: "Trần Minh Đức", r: "Coach kinh doanh online", q: "Tôi từng trả 45 triệu cho một agency làm landing page cho khoá học. Bây giờ tôi làm 12 trang trong 1 tuần với PageForge, chuyển đổi còn cao hơn bản agency. Quá đỉnh." },
+            { n: "Trần Minh Đức", r: "Coach kinh doanh online", q: "Tôi từng trả 45 triệu cho một agency làm landing page cho khoá học. Bây giờ tôi làm 12 trang trong 1 tuần với SADOMA, chuyển đổi còn cao hơn bản agency. Quá đỉnh." },
             { n: "Phạm Thuỳ Linh", r: "Chủ shop thời trang", q: "Cái hay nhất là tiếng Việt rất tự nhiên, không kiểu \"AI dịch\". Khách inbox khen trang đẹp suốt." },
-            { n: "Lê Hoàng Nam", r: "Marketer Agency", q: "Trước mỗi pitch khách hàng tôi đều tạo 3 phương án trang khác nhau bằng PageForge để demo. Tỷ lệ chốt deal của agency tôi tăng từ 22% lên 61%." },
+            { n: "Lê Hoàng Nam", r: "Marketer Agency", q: "Trước mỗi pitch khách hàng tôi đều tạo 3 phương án trang khác nhau bằng SADOMA để demo. Tỷ lệ chốt deal của agency tôi tăng từ 22% lên 61%." },
             { n: "Đỗ Quỳnh Anh", r: "Founder ed-tech startup", q: "Chúng tôi tiết kiệm được vị trí 1 designer full-time. ROI của tool này tính ra gấp 18 lần chi phí." },
-            { n: "Nguyễn Văn Phú", r: "Môi giới BĐS", q: "Mỗi dự án tôi làm 1 trang riêng trong 5 phút. Khách tin tưởng hơn hẳn so với gửi PDF brochure. Tháng vừa rồi tôi chốt 7 căn nhờ landing page do PageForge tạo." },
+            { n: "Nguyễn Văn Phú", r: "Môi giới BĐS", q: "Mỗi dự án tôi làm 1 trang riêng trong 5 phút. Khách tin tưởng hơn hẳn so với gửi PDF brochure. Tháng vừa rồi tôi chốt 7 căn nhờ landing page do SADOMA tạo." },
             { n: "Vũ Khánh Hoà", r: "Chủ tiệm bánh online", q: "Mình không biết gì về web, chỉ trả lời mấy câu hỏi của AI là có trang đẹp. Mẹ mình còn dùng được, thật sự rất dễ." },
           ].map((t) => (
             <div key={t.n} className="rounded-2xl border border-border bg-surface p-6">
@@ -585,7 +585,7 @@ function LandingPage() {
       {/* COMPARISON */}
       <Section>
         <Eyebrow>So sánh thẳng thắn</Eyebrow>
-        <H2>PageForge AI vs <span className="text-gradient-gold">cách làm truyền thống</span></H2>
+        <H2>SADOMA AI vs <span className="text-gradient-gold">cách làm truyền thống</span></H2>
 
         <div className="mt-10 overflow-x-auto">
           <table className="w-full min-w-[640px] overflow-hidden rounded-2xl border border-border">
@@ -594,7 +594,7 @@ function LandingPage() {
                 <th className="p-5 text-left font-display">Tiêu chí</th>
                 <th className="p-5 text-left font-display text-muted-foreground">Thuê agency / freelancer</th>
                 <th className="p-5 text-left font-display text-muted-foreground">Tool kéo thả thông thường</th>
-                <th className="p-5 text-left font-display text-primary">PageForge AI</th>
+                <th className="p-5 text-left font-display text-primary">SADOMA AI</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -622,7 +622,7 @@ function LandingPage() {
 
       {/* WHO IT'S FOR / NOT FOR */}
       <Section dark>
-        <H2>PageForge AI dành cho ai — và <span className="text-gradient-gold">không dành cho ai</span>?</H2>
+        <H2>SADOMA AI dành cho ai — và <span className="text-gradient-gold">không dành cho ai</span>?</H2>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-primary/40 bg-primary/5 p-8">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
@@ -672,7 +672,7 @@ function LandingPage() {
             { t: "BONUS #2 — Khoá học \"Tâm lý học khách hàng Việt 2026\"", v: "5.800.000đ", d: "12 video độc quyền do giảng viên Đại học RMIT chia sẻ về 7 nhóm hành vi mua hàng đặc trưng của người Việt." },
             { t: "BONUS #3 — Bộ 50 ảnh hero AI premium", v: "2.400.000đ", d: "50 ảnh hero đẳng cấp do AI Midjourney + Photoshop chuyên nghiệp xử lý, free dùng thương mại trọn đời." },
             { t: "BONUS #4 — Phiên audit landing page 1-1 với chuyên gia", v: "4.500.000đ", d: "Buổi 45 phút online, chuyên gia của chúng tôi sẽ soi trang của bạn và đưa ra 10 đề xuất tối ưu cụ thể." },
-            { t: "BONUS #5 — Cộng đồng VIP PageForge Insider", v: "6.100.000đ/năm", d: "Tham gia nhóm Zalo + Discord độc quyền, nơi 1.200+ chủ shop & marketer chia sẻ trang chuyển đổi cao của họ mỗi tuần." },
+            { t: "BONUS #5 — Cộng đồng VIP SADOMA Insider", v: "6.100.000đ/năm", d: "Tham gia nhóm Zalo + Discord độc quyền, nơi 1.200+ chủ shop & marketer chia sẻ trang chuyển đổi cao của họ mỗi tuần." },
           ].map((b, i) => (
             <div key={i} className="flex flex-col gap-4 rounded-2xl border border-gold/30 bg-gradient-to-r from-surface to-primary/5 p-6 md:flex-row md:items-center">
               <Gift className="h-10 w-10 shrink-0 text-gold" />
@@ -697,12 +697,12 @@ function LandingPage() {
         <div className="mx-auto mt-10 max-w-2xl rounded-3xl border border-border bg-surface p-8">
           <ul className="divide-y divide-border">
             {[
-              ["Phần mềm PageForge AI (12 tháng, không giới hạn trang)", "11.880.000đ"],
+              ["Phần mềm SADOMA AI (12 tháng, không giới hạn trang)", "11.880.000đ"],
               ["Bonus #1 — 250 mẫu copy bán hàng VIP", "4.900.000đ"],
               ["Bonus #2 — Khoá học Tâm lý khách hàng Việt 2026", "5.800.000đ"],
               ["Bonus #3 — Bộ 50 ảnh hero AI premium", "2.400.000đ"],
               ["Bonus #4 — Phiên audit 1-1 với chuyên gia", "4.500.000đ"],
-              ["Bonus #5 — Cộng đồng VIP PageForge Insider", "6.100.000đ"],
+              ["Bonus #5 — Cộng đồng VIP SADOMA Insider", "6.100.000đ"],
             ].map((row, i) => (
               <li key={i} className="flex items-center justify-between py-4">
                 <span>{row[0]}</span>
@@ -728,7 +728,7 @@ function LandingPage() {
 
         <div className="mx-auto mt-12 max-w-2xl overflow-hidden rounded-3xl border-2 border-primary/60 bg-gradient-to-br from-surface via-surface to-primary/10 p-10 shadow-glow">
           <div className="text-center">
-            <div className="text-xs font-bold uppercase tracking-widest text-primary">PageForge AI — Gói Pro Lifetime</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-primary">SADOMA AI — Gói Pro Lifetime</div>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:items-baseline sm:gap-4">
               <span className="text-2xl text-muted-foreground line-through">35.580.000đ</span>
               <span className="font-display text-6xl font-extrabold text-gradient-gold sm:text-7xl">1.490.000đ</span>
@@ -739,7 +739,7 @@ function LandingPage() {
 
             <div className="mx-auto mt-8 max-w-md space-y-3 text-left">
               {[
-                "Truy cập trọn đời tất cả tính năng PageForge AI",
+                "Truy cập trọn đời tất cả tính năng SADOMA AI",
                 "Tạo không giới hạn landing page",
                 "Tất cả 5 gói quà tặng trị giá 23.700.000đ",
                 "Hỗ trợ ưu tiên 24/7 qua Zalo & email",
@@ -805,7 +805,7 @@ function LandingPage() {
           <div>
             <h3 className="font-display text-2xl font-bold">Cam kết hoàn tiền 100% trong 30 ngày</h3>
             <p className="mt-3 text-muted-foreground">
-              Dùng PageForge AI 30 ngày. Nếu bạn không tạo ra ít nhất một landing page khiến bạn tự hào,
+              Dùng SADOMA AI 30 ngày. Nếu bạn không tạo ra ít nhất một landing page khiến bạn tự hào,
               hoặc không thấy <strong className="text-foreground">tỷ lệ chuyển đổi tăng rõ ràng</strong>, gửi cho chúng tôi một email.
               Chúng tôi hoàn lại <strong className="text-foreground">100% số tiền</strong>, không hỏi lý do.
               Bạn vẫn được giữ toàn bộ 5 gói quà tặng. Rủi ro hoàn toàn thuộc về chúng tôi.
@@ -820,13 +820,13 @@ function LandingPage() {
         <H2>Bạn còn băn khoăn? <span className="text-gradient-gold">Chúng tôi đã trả lời ở đây</span></H2>
         <div className="mx-auto mt-10 max-w-3xl space-y-3">
           {[
-            { q: "Tôi không biết gì về công nghệ, có dùng được không?", a: "Hoàn toàn được. PageForge AI được thiết kế cho người không chuyên. Bạn chỉ cần trả lời các câu hỏi bằng tiếng Việt, AI làm phần còn lại. 78% khách hàng của chúng tôi chưa từng dùng tool tạo trang nào trước đó." },
+            { q: "Tôi không biết gì về công nghệ, có dùng được không?", a: "Hoàn toàn được. SADOMA AI được thiết kế cho người không chuyên. Bạn chỉ cần trả lời các câu hỏi bằng tiếng Việt, AI làm phần còn lại. 78% khách hàng của chúng tôi chưa từng dùng tool tạo trang nào trước đó." },
             { q: "Landing page do AI tạo có giống nhau không?", a: "Không. Mỗi trang được sinh dựa trên thông tin sản phẩm và nhóm khách hàng riêng của bạn. Hai trang về cùng một sản phẩm vẫn có thể khác nhau hoàn toàn về copy và layout." },
             { q: "Tôi có dùng được domain riêng của mình không?", a: "Có. Bạn có thể trỏ domain riêng (ví dụ shopcuaban.com) chỉ trong 2 phút. Chúng tôi cấp SSL miễn phí." },
             { q: "Có giới hạn số trang tạo không?", a: "Không giới hạn. Bạn có thể tạo 1 hoặc 1000 trang, tuỳ ý." },
-            { q: "PageForge AI có hỗ trợ chạy quảng cáo không?", a: "Chúng tôi tích hợp sẵn Facebook Pixel, GA4, GTM, TikTok Pixel với 1 click. Phần chạy ads vẫn là việc của bạn — nhưng trang của bạn sẽ giúp ads chạy hiệu quả hơn nhiều." },
-            { q: "Tôi có thể tích hợp với Pancake, Haravan, Sapo không?", a: "Có. PageForge AI tích hợp native với 12 nền tảng phổ biến tại Việt Nam, bao gồm Pancake, Haravan, Sapo, Kiotviet, Nhanh.vn, Hubspot, Zalo OA…" },
-            { q: "Tôi đã có website cũ, có cần bỏ không?", a: "Không. PageForge AI dùng để tạo các landing page chuyên dùng cho campaign quảng cáo. Bạn vẫn giữ website chính thức của mình bình thường." },
+            { q: "SADOMA AI có hỗ trợ chạy quảng cáo không?", a: "Chúng tôi tích hợp sẵn Facebook Pixel, GA4, GTM, TikTok Pixel với 1 click. Phần chạy ads vẫn là việc của bạn — nhưng trang của bạn sẽ giúp ads chạy hiệu quả hơn nhiều." },
+            { q: "Tôi có thể tích hợp với Pancake, Haravan, Sapo không?", a: "Có. SADOMA AI tích hợp native với 12 nền tảng phổ biến tại Việt Nam, bao gồm Pancake, Haravan, Sapo, Kiotviet, Nhanh.vn, Hubspot, Zalo OA…" },
+            { q: "Tôi đã có website cũ, có cần bỏ không?", a: "Không. SADOMA AI dùng để tạo các landing page chuyên dùng cho campaign quảng cáo. Bạn vẫn giữ website chính thức của mình bình thường." },
             { q: "Sau 12 tháng tôi có phải trả thêm tiền không?", a: "Gói Pro Lifetime trong ưu đãi này là TRỌN ĐỜI cho phần mềm. Bạn chỉ trả 1 lần, dùng mãi mãi — không có phí ẩn." },
             { q: "Tôi có được cập nhật tính năng mới không?", a: "Có. Mọi tính năng mới đều được cập nhật miễn phí cho khách hàng Lifetime, ngay cả khi giá bán cho khách mới tăng gấp đôi." },
             { q: "Nếu tôi không hài lòng thì sao?", a: "Bạn được hoàn 100% tiền trong vòng 30 ngày, không hỏi lý do. Bạn vẫn giữ toàn bộ 5 gói quà tặng. Đây là cam kết bằng văn bản." },
@@ -863,12 +863,12 @@ function LandingPage() {
             <h3 className="font-display text-xl font-bold">Bạn nhận được trọn bộ:</h3>
             <ul className="mt-4 space-y-2">
               {[
-                "✓ Phần mềm PageForge AI Pro — trọn đời, không giới hạn trang",
+                "✓ Phần mềm SADOMA AI Pro — trọn đời, không giới hạn trang",
                 "✓ 250 mẫu copy bán hàng VIP (4.900.000đ)",
                 "✓ Khoá học Tâm lý khách hàng Việt 2026 (5.800.000đ)",
                 "✓ Bộ 50 ảnh hero AI premium (2.400.000đ)",
                 "✓ Phiên audit 1-1 với chuyên gia (4.500.000đ)",
-                "✓ Cộng đồng VIP PageForge Insider (6.100.000đ/năm)",
+                "✓ Cộng đồng VIP SADOMA Insider (6.100.000đ/năm)",
                 "✓ Hỗ trợ 24/7 ưu tiên + cập nhật trọn đời",
                 "✓ Bảo hành hoàn tiền 100% trong 30 ngày",
               ].map((x) => <li key={x} className="text-muted-foreground">{x}</li>)}
@@ -880,27 +880,27 @@ function LandingPage() {
           </div>
 
           <div className="mt-10">
-            <PrimaryCTA>YES! Tôi Sở Hữu PageForge AI Ngay</PrimaryCTA>
+            <PrimaryCTA>YES! Tôi Sở Hữu SADOMA AI Ngay</PrimaryCTA>
             <p className="mt-4 text-sm text-muted-foreground">
               Bạn không mất gì cả — được bảo hành 30 ngày. Nhấn nút trên, vào ngay studio trong 60 giây nữa.
             </p>
           </div>
 
           <div className="mt-16 border-t border-border pt-10 text-left">
-            <p className="text-muted-foreground">Cuối cùng, một lời chân thành từ đội ngũ PageForge AI:</p>
+            <p className="text-muted-foreground">Cuối cùng, một lời chân thành từ đội ngũ SADOMA AI:</p>
             <p className="mt-4 text-lg leading-relaxed">
               Chúng tôi đã từng ở đúng vị trí của bạn — đốt tiền, mất ngủ, hoài nghi bản thân.
-              Chúng tôi xây PageForge AI vì chúng tôi tin rằng <strong className="text-foreground">không có chủ doanh nghiệp tử tế nào đáng bị giết bởi một landing page tệ</strong>.
+              Chúng tôi xây SADOMA AI vì chúng tôi tin rằng <strong className="text-foreground">không có chủ doanh nghiệp tử tế nào đáng bị giết bởi một landing page tệ</strong>.
               Hôm nay, công cụ mà ngày xưa chúng tôi ước có, đang nằm trong tầm tay bạn. Đừng để 12 tháng nữa
               bạn vẫn ngồi đây tự hỏi: <em>"Giá mà mình đã thử…"</em>
             </p>
-            <p className="mt-4 text-right text-sm text-muted-foreground">— Đội ngũ PageForge AI</p>
+            <p className="mt-4 text-right text-sm text-muted-foreground">— Đội ngũ SADOMA AI</p>
           </div>
         </div>
       </Section>
 
       <footer className="border-t border-border py-10 text-center text-sm text-muted-foreground">
-        © 2026 PageForge AI · Tạo bằng chính PageForge AI · contact@pageforge.ai
+        © 2026 SADOMA AI · Tạo bằng chính SADOMA AI · contact@pageforge.ai
       </footer>
     </main>
   );
