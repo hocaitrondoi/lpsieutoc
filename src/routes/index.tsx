@@ -6,6 +6,7 @@ import {
   ChevronDown, Bot, Layers, BarChart3, Globe, Wand2, X, Copy, Check,
 } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { OrderForm } from "@/components/OrderForm";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
