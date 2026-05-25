@@ -6,7 +6,8 @@ import {
   ChevronDown, Bot, Layers, BarChart3, Globe, Wand2, X, Copy, Check,
 } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import { OrderForm } from "@/components/OrderForm";
+import { useServerFn } from "@tanstack/react-start";
+import { createOrder } from "@/lib/order.functions";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
