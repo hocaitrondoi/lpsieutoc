@@ -144,3 +144,97 @@ Before marking the project complete, verify:
 [ ] Production Cloudflare deployment is active
 ```
 
+## Security & Advanced Configurations
+
+### 1. Concurrent Login Control (Single Session Token)
+
+To prevent account sharing, enforce a single active device session using a session token in the database.
+
+#### DB Schema Changes
+Add a text column to track the active session identifier:
+```sql
+ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS current_session_id TEXT;
+```
+
+#### Frontend Implementation Flow
+1. **On Login (`/login`):**
+   - Generate a unique device session token: `const token = crypto.randomUUID();`
+   - Store it locally: `localStorage.setItem("device_session_token", token);`
+   - Update it on the database profiles:
+     ```typescript
+     await supabase.from("profiles").update({ current_session_id: token }).eq("id", user.id);
+     ```
+2. **On Page Load and Activity Check (`/dashboard`):**
+   - Query `current_session_id` from the user's profile.
+   - Compare with the local storage token `localStorage.getItem("device_session_token")`.
+   - If they differ (for non-admin users), trigger logout:
+     ```typescript
+     alert("Tài khoản đã đăng nhập ở thiết bị khác.");
+     await supabase.auth.signOut();
+     localStorage.removeItem("device_session_token");
+     navigate({ to: "/login" });
+     ```
+   - Run this check periodically (e.g., using `setInterval` every 10 seconds).
+
+---
+
+### 2. Course Access Control (Enrollments)
+
+To restrict students so they only access courses they purchased or were granted.
+
+#### DB Schema Changes
+Create an enrollment link table and update RLS policies:
+```sql
+-- 1. Create mapping table
+CREATE TABLE IF NOT EXISTS public.student_courses (
+  student_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  course_id UUID NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (student_id, course_id)
+);
+
+ALTER TABLE public.student_courses ENABLE ROW LEVEL SECURITY;
+
+-- 2. Select policy
+CREATE POLICY "student_courses_select" ON public.student_courses 
+  FOR SELECT TO authenticated 
+  USING (student_id = auth.uid() OR public.has_role(auth.uid(), 'admin'));
+
+-- 3. Update Courses & Lessons RLS SELECT policies
+DROP POLICY IF EXISTS "courses_select_auth" ON public.courses;
+DROP POLICY IF EXISTS "lessons_select_auth" ON public.lessons;
+
+CREATE POLICY "courses_select_auth" ON public.courses 
+  FOR SELECT TO authenticated 
+  USING (
+    public.has_role(auth.uid(), 'admin') OR 
+    EXISTS (
+      SELECT 1 FROM public.student_courses 
+      WHERE student_courses.student_id = auth.uid() 
+      AND student_courses.course_id = courses.id
+    )
+  );
+
+CREATE POLICY "lessons_select_auth" ON public.lessons 
+  FOR SELECT TO authenticated 
+  USING (
+    public.has_role(auth.uid(), 'admin') OR 
+    EXISTS (
+      SELECT 1 FROM public.student_courses 
+      WHERE student_courses.student_id = auth.uid() 
+      AND student_courses.course_id = lessons.course_id
+    )
+  );
+```
+
+#### Server Functions Integration
+- **Fetch List (`listStudents`):** Query `student_courses` table and aggregate enrolled `course_ids` inside each student profile object.
+- **Update Access (`updateStudentCourses`):** Admin action to delete old entries in `student_courses` for a given student ID and insert new ones based on the checked checkboxes.
+
+#### Frontend Dashboard Integration
+- Display checklist of courses next to each student in the Admin Student List.
+- Toggling a checkbox triggers `updateStudentCourses` API call.
+- Filter the main course dropdown/selection for students to only show courses present in `courses` table (which is naturally restricted by the updated RLS SELECT policy).
+
+
