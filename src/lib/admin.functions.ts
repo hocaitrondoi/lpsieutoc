@@ -78,12 +78,30 @@ export const listStudents = createServerFn({ method: "GET" })
 
     if (profileError) throw new Error(profileError.message);
 
+    // 3. Fetch student_courses
+    const { data: enrollmentRows, error: enrollmentError } = await supabaseAdmin
+      .from("student_courses")
+      .select("student_id, course_id")
+      .in("student_id", userIds);
+
+    if (enrollmentError) throw new Error(enrollmentError.message);
+
+    // Group course ids by student id
+    const coursesByStudent: Record<string, string[]> = {};
+    for (const row of (enrollmentRows ?? [])) {
+      if (!coursesByStudent[row.student_id]) {
+        coursesByStudent[row.student_id] = [];
+      }
+      coursesByStudent[row.student_id].push(row.course_id);
+    }
+
     return {
       students: (profileRows ?? []).map((p) => ({
         id: p.id,
         full_name: p.full_name,
         email: p.email,
         created_at: p.created_at,
+        course_ids: coursesByStudent[p.id] ?? [],
       })),
     };
   });
@@ -285,6 +303,52 @@ export const deleteCourse = createServerFn({ method: "POST" })
       .eq("id", data.id);
 
     if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* ================================================================
+   STUDENT COURSE ACCESS MANAGEMENT — Admin CRUD
+   ================================================================ */
+
+const updateStudentCoursesSchema = z.object({
+  student_id: z.string().uuid(),
+  course_ids: z.array(z.string().uuid()),
+});
+
+export const updateStudentCourses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => updateStudentCoursesSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: roleRow } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!roleRow) throw new Error("Forbidden: admin only");
+
+    // 1. Delete all existing course links for this student
+    const { error: deleteError } = await supabaseAdmin
+      .from("student_courses")
+      .delete()
+      .eq("student_id", data.student_id);
+
+    if (deleteError) throw new Error(deleteError.message);
+
+    // 2. Insert new course links
+    if (data.course_ids.length > 0) {
+      const inserts = data.course_ids.map(course_id => ({
+        student_id: data.student_id,
+        course_id,
+      }));
+
+      const { error: insertError } = await supabaseAdmin
+        .from("student_courses")
+        .insert(inserts);
+
+      if (insertError) throw new Error(insertError.message);
+    }
+
     return { ok: true };
   });
 

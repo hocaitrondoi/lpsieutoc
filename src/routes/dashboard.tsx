@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Wand2, LogOut, PlayCircle, CheckCircle2, Users, UserPlus, BookOpen, Shield, Plus, Pencil, Trash2, Save, X, RefreshCw, Video, GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { createStudent, listStudents, createLesson, updateLesson, deleteLesson, createCourse, updateCourse, deleteCourse } from "@/lib/admin.functions";
+import { createStudent, listStudents, createLesson, updateLesson, deleteLesson, createCourse, updateCourse, deleteCourse, updateStudentCourses } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/dashboard")({
 
 type Lesson = { id: string; title: string; description: string | null; video_url: string | null; order_index: number };
 type Course = { id: string; title: string; description: string | null };
-type Student = { id: string; full_name: string | null; email: string | null; created_at: string };
+type Student = { id: string; full_name: string | null; email: string | null; created_at: string; course_ids?: string[] };
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -38,6 +38,7 @@ function DashboardPage() {
   const createCourseFn = useServerFn(createCourse);
   const updateCourseFn = useServerFn(updateCourse);
   const deleteCourseFn = useServerFn(deleteCourse);
+  const updateStudentCoursesFn = useServerFn(updateStudentCourses);
 
   // Student state
   const [students, setStudents] = useState<Student[]>([]);
@@ -184,6 +185,32 @@ function DashboardPage() {
       setAdminMsg({ type: "err", text: err?.message ?? "Có lỗi xảy ra" });
     } finally {
       setAdminBusy(false);
+    }
+  };
+
+  const handleToggleStudentCourse = async (studentId: string, courseId: string, currentChecked: boolean) => {
+    const student = students.find((s) => s.id === studentId);
+    if (!student) return;
+
+    const currentCourseIds = student.course_ids ?? [];
+    let nextCourseIds: string[];
+    if (currentChecked) {
+      nextCourseIds = [...currentCourseIds, courseId];
+    } else {
+      nextCourseIds = currentCourseIds.filter((id) => id !== courseId);
+    }
+
+    setStudents((prev) =>
+      prev.map((s) => (s.id === studentId ? { ...s, course_ids: nextCourseIds } : s))
+    );
+
+    try {
+      await updateStudentCoursesFn({ data: { student_id: studentId, course_ids: nextCourseIds } });
+    } catch (err: any) {
+      alert("Không thể cập nhật quyền khóa học: " + (err?.message ?? "Có lỗi xảy ra"));
+      setStudents((prev) =>
+        prev.map((s) => (s.id === studentId ? { ...s, course_ids: currentCourseIds } : s))
+      );
     }
   };
 
@@ -794,16 +821,36 @@ function DashboardPage() {
                         <tr>
                           <th className="px-4 py-2.5">Họ tên</th>
                           <th className="px-4 py-2.5">Email</th>
+                          <th className="px-4 py-2.5">Khóa học được học</th>
                           <th className="px-4 py-2.5">Ngày tạo</th>
                         </tr>
                       </thead>
                       <tbody>
                         {students.length === 0 ? (
-                          <tr><td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">Chưa có học viên</td></tr>
+                          <tr><td colSpan={4} className="px-4 py-6 text-center text-muted-foreground">Chưa có học viên</td></tr>
                         ) : students.map((s) => (
                           <tr key={s.id} className="border-t border-border">
-                            <td className="px-4 py-2.5">{s.full_name || "—"}</td>
+                            <td className="px-4 py-2.5 font-medium">{s.full_name || "—"}</td>
                             <td className="px-4 py-2.5 text-muted-foreground">{s.email}</td>
+                            <td className="px-4 py-2.5">
+                              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                                {courses.map((c) => {
+                                  const isEnrolled = s.course_ids?.includes(c.id) ?? false;
+                                  return (
+                                    <label key={c.id} className="inline-flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none">
+                                      <input
+                                        type="checkbox"
+                                        checked={isEnrolled}
+                                        onChange={(e) => handleToggleStudentCourse(s.id, c.id, e.target.checked)}
+                                        className="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5"
+                                      />
+                                      <span>{c.title}</span>
+                                    </label>
+                                  );
+                                })}
+                                {courses.length === 0 && <span className="text-xs text-muted-foreground">Chưa có khóa học để phân quyền</span>}
+                              </div>
+                            </td>
                             <td className="px-4 py-2.5 text-muted-foreground">{new Date(s.created_at).toLocaleDateString("vi-VN")}</td>
                           </tr>
                         ))}
