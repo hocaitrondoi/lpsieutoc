@@ -73,6 +73,39 @@ export type Database = {
           },
         ]
       }
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          note: string | null
+          phone: string
+          status: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          note?: string | null
+          phone: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          note?: string | null
+          phone?: string
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
