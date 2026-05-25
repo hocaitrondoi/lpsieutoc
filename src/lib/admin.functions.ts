@@ -197,3 +197,94 @@ export const deleteLesson = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/* ================================================================
+   COURSE MANAGEMENT — Admin CRUD
+   ================================================================ */
+
+const createCourseSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional().default(""),
+});
+
+export const createCourse = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => createCourseSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: roleRow } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!roleRow) throw new Error("Forbidden: admin only");
+
+    const { data: course, error } = await supabaseAdmin
+      .from("courses")
+      .insert({
+        title: data.title,
+        description: data.description || null,
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return { ok: true, course };
+  });
+
+const updateCourseSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional().default(""),
+});
+
+export const updateCourse = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => updateCourseSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: roleRow } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!roleRow) throw new Error("Forbidden: admin only");
+
+    const { data: course, error } = await supabaseAdmin
+      .from("courses")
+      .update({
+        title: data.title,
+        description: data.description || null,
+      })
+      .eq("id", data.id)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return { ok: true, course };
+  });
+
+const deleteCourseSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export const deleteCourse = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => deleteCourseSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: roleRow } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!roleRow) throw new Error("Forbidden: admin only");
+
+    const { error } = await supabaseAdmin
+      .from("courses")
+      .delete()
+      .eq("id", data.id);
+
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+

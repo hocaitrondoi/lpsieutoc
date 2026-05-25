@@ -35,12 +35,28 @@ function LoginPage() {
       return;
     }
     setIsLoading(true);
-    const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
-    setIsLoading(false);
+    const { data, error: authErr } = await supabase.auth.signInWithPassword({ email, password });
     if (authErr) {
+      setIsLoading(false);
       setError("Email hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.");
       return;
     }
+    
+    try {
+      const deviceSessionToken = crypto.randomUUID();
+      localStorage.setItem("device_session_token", deviceSessionToken);
+      
+      if (data.user) {
+        await supabase
+          .from("profiles")
+          .update({ current_session_id: deviceSessionToken })
+          .eq("id", data.user.id);
+      }
+    } catch (err) {
+      console.error("Error setting session token:", err);
+    }
+
+    setIsLoading(false);
     navigate({ to: "/dashboard" });
   };
 
